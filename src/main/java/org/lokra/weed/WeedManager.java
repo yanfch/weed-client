@@ -1,6 +1,7 @@
 package org.lokra.weed;
 
 import feign.Feign;
+import feign.form.FormEncoder;
 import feign.jackson.JacksonDecoder;
 import feign.okhttp.OkHttpClient;
 import org.lokra.weed.content.Cluster;
@@ -47,6 +48,7 @@ public class WeedManager {
         leaderMasterUrl = assembleUrl(host, port);
         leaderMaster = Feign.builder()
                 .client(new OkHttpClient())
+                .encoder(new FormEncoder())
                 .decoder(new JacksonDecoder())
                 .target(WeedMasterClient.class, String.format("http://%s", leaderMasterUrl));
 
@@ -108,6 +110,7 @@ public class WeedManager {
             ids.add(id);
             volumeClients.putIfAbsent(id, Feign.builder()
                     .client(new OkHttpClient())
+                    .encoder(new FormEncoder())
                     .decoder(new JacksonDecoder())
                     .target(WeedVolumeClient.class, String.format("http://%s", location.getPublicUrl())));
         });
@@ -154,6 +157,7 @@ public class WeedManager {
             log.info("Weed leader master server is change to [{}]", leaderMasterUrl);
             leaderMaster = Feign.builder()
                     .client(new OkHttpClient())
+                    .encoder(new FormEncoder())
                     .decoder(new JacksonDecoder())
                     .target(WeedMasterClient.class, String.format("http://%s", leaderMaster));
         }
@@ -166,15 +170,18 @@ public class WeedManager {
         peerMasters.remove(leaderMasterUrl);
         removeSet.forEach(key -> peerMasters.remove(key));
 
-        cluster.getPeers().forEach(url -> {
-            if (!peerMasters.containsKey(url)) {
-                peerMasters.put(url,
-                        Feign.builder()
-                                .client(new OkHttpClient())
-                                .decoder(new JacksonDecoder())
-                                .target(WeedMasterClient.class, String.format("http://%s", url)));
-            }
-        });
+        if (null != cluster.getPeers()) {
+            cluster.getPeers().forEach(url -> {
+                if (!peerMasters.containsKey(url)) {
+                    peerMasters.put(url,
+                            Feign.builder()
+                                    .client(new OkHttpClient())
+                                    .encoder(new FormEncoder())
+                                    .decoder(new JacksonDecoder())
+                                    .target(WeedMasterClient.class, String.format("http://%s", url)));
+                }
+            });
+        }
     }
 
     /**

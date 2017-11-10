@@ -1,12 +1,19 @@
 package org.lokra.weed;
 
+import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 import org.lokra.weed.content.*;
 
+import java.io.File;
+
 public interface WeedMasterClient {
     @RequestLine("OPTIONS /status")
     void checkAlive();
+
+    @RequestLine("POST /submit?collection={collection}&count={count}")
+    @Headers("Content-Type: multipart/form-data")
+    WeedFile upload(@Param("file") File file, @Param("collection") String collection, @Param("count") int count);
 
     @RequestLine("GET /dir/assign?replication={replication}&count={count}&dataCenter={dataCenter}&ttl={ttl}")
     Assign assign(@Param("replication") String replication, @Param("count") Integer count, @Param("dataCenter") String dataCenter, @Param("ttl") String ttl);
