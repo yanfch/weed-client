@@ -19,6 +19,10 @@ public interface WeedMasterClient {
     @Headers("Content-Type: multipart/form-data")
     WeedFile upload(@Param("file") byte[] bytes, @Param("collection") String collection, @Param("count") int count);
 
+    @RequestLine("POST /submit?collection={collection}&count={count}")
+    @Headers("Content-Type: multipart/form-data")
+    WeedFile upload(@Param("file") String content, @Param("collection") String collection, @Param("count") int count);
+
     @RequestLine("GET /dir/assign?replication={replication}&count={count}&dataCenter={dataCenter}&ttl={ttl}")
     Assign assign(@Param("replication") String replication, @Param("count") Integer count, @Param("dataCenter") String dataCenter, @Param("ttl") String ttl);
 
