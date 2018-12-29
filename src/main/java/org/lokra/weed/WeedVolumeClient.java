@@ -20,6 +20,10 @@ public interface WeedVolumeClient {
     @Headers("Content-Type: multipart/form-data")
     WeedFile upload(@Param("fid") String fid, @Param("file") byte[] bytes);
 
+    @RequestLine("POST /{fid}?cm={cm}")
+    @Headers("Content-Type: multipart/form-data")
+    WeedFile upload(@Param("fid") String fid, @Param("cm") boolean cm, @Param("file") String bytes);
+
     @RequestLine("DELETE /{fid}")
     WeedFile delete(@Param("fid") String fid);
 
